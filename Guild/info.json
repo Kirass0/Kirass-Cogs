@@ -1,0 +1,17 @@
+{
+    "AUTHOR" : "@Kirass#5074",
+    "DESCRIPTION" : "Guild system for discord. You can now make guilds on your discord server and let leaders add members to their guild. Guilds are basically roles, with discord's permissions system you can restrict/give access to chat/voice channels for all members of given guild.",
+    "INSTALL_MSG" : "Thank you for installing Guild from Kirass Cogs.",
+    "NAME" : "Guild",
+    "REQUIREMENTS" : [],
+    "SHORT" : "Guild system for Discord. Create a guild, leader can add/remove members.",
+    "TAGS" : [
+        "guild",
+        "roles",
+		"utility",
+		"tools",
+		"gaming",
+		"useful",
+		"management"
+    ]
+}
