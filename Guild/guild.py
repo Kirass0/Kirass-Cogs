@@ -41,11 +41,16 @@ class Guild:
             await self.bot.send_cmd_help(ctx)
             return
 
-        server = ctx.message.server
         author = ctx.message.author
+        if user == author:
+            await self.bot.say('You cannot add yourself to the guild silly :facepalm:')
+            return
+
+        server = ctx.message.server
         leader = None
         role = None
 
+        #try to get our leader and role
         for guild in self._settings[server.id]:
             if self._settings[server.id][guild]["Leader"] == author.id:
                 leader = author
@@ -53,6 +58,9 @@ class Guild:
                 break
         
         if leader != None:
+            if role in user.roles:
+                await self.bot.say('This user is already a member of your guild.')
+                return
             try:
                 await self.bot.add_roles(user, role)
             except discord.errors.Forbidden:
@@ -73,11 +81,16 @@ class Guild:
             await self.bot.send_cmd_help(ctx)
             return
 
-        server = ctx.message.server
         author = ctx.message.author
+        if user == author:
+            await self.bot.say('You cannot remove yourself from the guild silly :facepalm:')
+            return
+
+        server = ctx.message.server
         leader = None
         role = None
 
+        #try to get our leader and role
         for guild in self._settings[server.id]:
             if self._settings[server.id][guild]["Leader"] == author.id:
                 leader = author
@@ -111,22 +124,31 @@ class Guild:
             await self.bot.send_cmd_help(ctx)
             return
 
-        server = ctx.message.server
         author = ctx.message.author
+        if user == author:
+            await self.bot.say('You cannot transfer the leader to yourself silly :facepalm:')
+            return
+
+        server = ctx.message.server
         leader = None
         role = None
+        our_guild = None
 
+        #try to get our leader, role and check if user is already a leader
         for guild in self._settings[server.id]:
             if self._settings[server.id][guild]["Leader"] == author.id:
                 leader = author
                 role = discord.utils.get(server.roles, id=self._settings[server.id][guild]["Role"])
-                break
+                our_guild = guild
+            if self._settings[server.id][guild]["Leader"] == user.id:
+                await self.bot.say('You cannot transfer your leader to {}, because he is already a leader for another guild.'.format(user.nick if user.nick else user.name))
+                return
         
         if leader != None:
             if role in user.roles:
-                self._settings[server.id][guild]["Leader"] = user.id
+                self._settings[server.id][our_guild]["Leader"] = user.id
                 self._save_settings()
-                await self.bot.say('{} is the new leader of {}.'.format(user.nick if user.nick else user.name, guild))
+                await self.bot.say('{} is the new leader of {}.'.format(user.nick if user.nick else user.name, our_guild))
             else:
                 await self.bot.say('This user is not in your guild.')
         else:
@@ -141,9 +163,9 @@ class Guild:
         if ctx.invoked_subcommand is None:
             await self.bot.send_cmd_help(ctx)
 
-    @guildset.command(pass_context=True, name="add")
+    @guildset.command(pass_context=True, name="create")
     @checks.mod_or_permissions(manage_roles=True)
-    async def guildset_add(self, ctx, leader: discord.Member=None, guildname=None):
+    async def guildset_create(self, ctx, leader: discord.Member=None, guildname=None):
         """ Creates a guild. """
 
         if leader is None or guildname is None:
@@ -232,9 +254,9 @@ class Guild:
 
     @commands.command(pass_context=True, no_pm=True)
     async def guildlist(self, ctx, guildname=None):
-        """ Display a list of all guilds on the server.
+        """ Display a list of all guilds on the server and list their members.
         
-        Specify [guildname] to display a list of members of this guild."""
+        Specify [guildname] to only display a list of members of that guild."""
 
         server = ctx.message.server
 
