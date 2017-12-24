@@ -224,19 +224,7 @@ class Guild:
             await self.bot.say(':thinking: A guild with that name never existed...')
             return
 
-        #remove guild role from members
-        for member in server.members:
-            for role in member.roles:
-                if role.id == self._settings[server.id][guildname]["Role"]:
-                    try:
-                        await self.bot.remove_roles(member, role)
-                    except discord.errors.Forbidden:
-                        await self.bot.say('I don\'t have manage roles permission.')
-                        return
-                    except discord.HTTPException:
-                        await self.bot.say('Whoops, error.')
-                        return
-        
+        #delete the role
         role = discord.utils.get(server.roles, id=self._settings[server.id][guildname]["Role"])
         try:
             await self.bot.delete_role(server, role)
